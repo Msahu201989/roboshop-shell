@@ -1,6 +1,6 @@
 fun_apppreq(){
     echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
-    useradd roboshop
+    useradd roboshop &>>${log}
 
     echo -e "\e[36m>>>>>>>> Cleanup Existing Application Content <<<<<<<<<<<<<<<\e[0m"
     rm -rf /app &>>${log}
