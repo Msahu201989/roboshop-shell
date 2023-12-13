@@ -1,4 +1,33 @@
-nodejs() {
+fun_apppreq(){
+    echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
+    useradd roboshop &>>${log}
+
+    echo -e "\e[36m>>>>>>>> Cleanup Existing Application Content <<<<<<<<<<<<<<<\e[0m"
+    rm -rf /app &>>${log}
+
+    echo -e "\e[36m>>>>>>>> Create Application Directory <<<<<<<<<<<<<<<\e[0m"
+    mkdir /app &>>${log}
+
+
+    echo -e "\e[36m>>>>>>>> Download Application Content <<<<<<<<<<<<<<<\e[0m"
+    curl -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}.zip &>>${log}
+
+
+    echo -e "\e[36m>>>>>>>> Extract Application Content<<<<<<<<<<<<<<<\e[0m"
+    cd /app &>>${log}
+    unzip /tmp/${component}.zip &>>${log}
+    cd /app &>>${log}
+}
+
+fun_systemd(){
+
+  echo -e "\e[36m>>>>>>>> Start ${component} Service <<<<<<<<<<<<<<<\e[0m"
+  systemctl daemon-reload &>>${log}
+  systemctl enable ${component} &>>${log}
+  systemctl restart ${component} &>>${log}
+}
+
+fun_nodejs() {
   log=/tmp/roboshop.log
 
   echo -e "\e[36m>>>>>>>>>>>>  Create ${component} Service  <<<<<<<<<<<<\e[0m"
@@ -13,24 +42,7 @@ nodejs() {
   echo -e "\e[36m>>>>>>>> Install Node JS  <<<<<<<<<<<<<<<\e[0m"
   yum install nodejs -y &>>${log}
 
-  echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
-  useradd roboshop &>>${log}
-
-  echo -e "\e[36m>>>>>>>> Removing old Content <<<<<<<<<<<<<<<\e[0m"
-  rm -rf /app &>>${log}
-
-  echo -e "\e[36m>>>>>>>> Create Application Directory <<<<<<<<<<<<<<<\e[0m"
-  mkdir /app &>>${log}
-
-
-  echo -e "\e[36m>>>>>>>> Download Application Content <<<<<<<<<<<<<<<\e[0m"
-  curl -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}.zip &>>${log}
-
-
-  echo -e "\e[36m>>>>>>>> Extract Application Content<<<<<<<<<<<<<<<\e[0m"
-  cd /app &>>${log}
-  unzip /tmp/${component}.zip &>>${log}
-  cd /app &>>${log}
+ fun_apppreq
 
   echo -e "\e[36m>>>>>>>> Download NodeJS Dependencies <<<<<<<<<<<<<<<\e[0m"
   npm install &>>${log}
@@ -41,9 +53,30 @@ nodejs() {
   echo -e "\e[36m>>>>>>>> Load ${component} Schema <<<<<<<<<<<<<<<\e[0m"
   mongo --host mongodb.msahu.online </app/schema/${component}.js &>>${log}
 
+fun_systemd
 
-  echo -e "\e[36m>>>>>>>> Start ${component} Service <<<<<<<<<<<<<<<\e[0m"
-  systemctl daemon-reload &>>${log}
-  systemctl enable ${component} &>>${log}
-  systemctl restart ${component} &>>${log}
+}
+
+fun_java(){
+
+ echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
+  cp ${component}.service /etc/systemd/system/${component}.service
+
+ echo -e "\e[36m>>>>>>>> Install Maven <<<<<<<<<<<<<<<\e[0m"
+  yum install maven -y
+
+fun_apppreq
+
+  echo -e "\e[36m>>>>>>>> Build ${component} service <<<<<<<<<<<<<<<\e[0m"
+  mvn clean package
+  mv target/${component}-1.0.jar ${component}.jar
+
+  echo -e "\e[36m>>>>>>>> Install Mysql Client <<<<<<<<<<<<<<<\e[0m"
+  yum install mysql -y
+
+  echo -e "\e[36m>>>>>>>> Load Schema <<<<<<<<<<<<<<<\e[0m"
+  mysql -h mysql.msahu.online -uroot -pRoboShop@1 < /app/schema/${component}.sql
+
+fun_systemd
+
 }
