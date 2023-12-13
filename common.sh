@@ -33,6 +33,24 @@ fun_systemd(){
   systemctl restart ${component} &>>${log}
 }
 
+fun_schema_setup(){
+   if [ "${schema_type}" == "mongodb" ]; then
+    echo -e "\e[36m>>>>>>>> Install Mongo Client <<<<<<<<<<<<<<<\e[0m"
+    yum install mongodb-org-shell -y &>>${log}
+
+    echo -e "\e[36m>>>>>>>> Load ${component} Schema <<<<<<<<<<<<<<<\e[0m"
+   mongo --host mongodb.msahu.online </app/schema/${component}.js &>>${log}
+   fi
+
+   if [ "${schema_type}" == "mysql" ]; then
+       echo -e "\e[36m>>>>>>>> Install Mysql Client <<<<<<<<<<<<<<<\e[0m"
+       yum install mysql -y &>>${log}
+
+       echo -e "\e[36m>>>>>>>> Load Schema <<<<<<<<<<<<<<<\e[0m"
+       mysql -h mysql.msahu.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>>${log}
+   fi
+}
+
 fun_nodejs() {
 
   echo -e "\e[36m>>>>>>>> Create MongoDB Repo <<<<<<<<<<<<<<<\e[0m"
@@ -49,11 +67,7 @@ fun_nodejs() {
   echo -e "\e[36m>>>>>>>> Download NodeJS Dependencies <<<<<<<<<<<<<<<\e[0m"
   npm install &>>${log}
 
-  echo -e "\e[36m>>>>>>>> Install Mongo Client <<<<<<<<<<<<<<<\e[0m"
-  yum install mongodb-org-shell -y &>>${log}
-
-  echo -e "\e[36m>>>>>>>> Load ${component} Schema <<<<<<<<<<<<<<<\e[0m"
-  mongo --host mongodb.msahu.online </app/schema/${component}.js &>>${log}
+fun_schema_setup
 
 fun_systemd
 
@@ -70,11 +84,7 @@ fun_java(){
   mvn clean package &>>${log}
   mv target/${component}-1.0.jar ${component}.jar &>>${log}
 
-  echo -e "\e[36m>>>>>>>> Install Mysql Client <<<<<<<<<<<<<<<\e[0m"
-  yum install mysql -y &>>${log}
-
-  echo -e "\e[36m>>>>>>>> Load Schema <<<<<<<<<<<<<<<\e[0m"
-  mysql -h mysql.msahu.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>>${log}
+  fun_schema_setup
 
   fun_systemd
 
