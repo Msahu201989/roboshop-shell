@@ -1,3 +1,5 @@
+log=/tmp/roboshop.log
+
 fun_apppreq(){
     echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
     useradd roboshop &>>${log}
@@ -28,7 +30,7 @@ fun_systemd(){
 }
 
 fun_nodejs() {
-  log=/tmp/roboshop.log
+
 
   echo -e "\e[36m>>>>>>>>>>>>  Create ${component} Service  <<<<<<<<<<<<\e[0m"
   cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
