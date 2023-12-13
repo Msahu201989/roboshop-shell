@@ -4,25 +4,31 @@ fun_apppreq(){
 
     echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
     cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
+echo $?
 
     echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
     useradd roboshop &>>${log}
+echo $?
 
     echo -e "\e[36m>>>>>>>> Cleanup Existing Application Content <<<<<<<<<<<<<<<\e[0m"
     rm -rf /app &>>${log}
+echo $?
 
     echo -e "\e[36m>>>>>>>> Create Application Directory <<<<<<<<<<<<<<<\e[0m"
     mkdir /app &>>${log}
+echo $?
 
 
     echo -e "\e[36m>>>>>>>> Download Application Content <<<<<<<<<<<<<<<\e[0m"
     curl -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}.zip &>>${log}
+echo $?
 
 
     echo -e "\e[36m>>>>>>>> Extract Application Content<<<<<<<<<<<<<<<\e[0m"
     cd /app &>>${log}
     unzip /tmp/${component}.zip &>>${log}
     cd /app &>>${log}
+    echo $?
 }
 
 fun_systemd(){
@@ -31,6 +37,7 @@ fun_systemd(){
   systemctl daemon-reload &>>${log}
   systemctl enable ${component} &>>${log}
   systemctl restart ${component} &>>${log}
+  echo $?
 }
 
 fun_schema_setup(){
@@ -55,17 +62,21 @@ fun_nodejs() {
 
   echo -e "\e[36m>>>>>>>> Create MongoDB Repo <<<<<<<<<<<<<<<\e[0m"
   cp mongo.repo /etc/yum.repos.d/mongo.repo &>>${log}
+  echo $?
 
   echo -e "\e[36m>>>>>>>> Download & Install Node Js Repo <<<<<<<<<<<<<<<\e[0m"
   curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>>${log}
+  echo $?
 
   echo -e "\e[36m>>>>>>>> Install Node JS  <<<<<<<<<<<<<<<\e[0m"
   yum install nodejs -y &>>${log}
+  echo $?
 
  fun_apppreq
 
   echo -e "\e[36m>>>>>>>> Download NodeJS Dependencies <<<<<<<<<<<<<<<\e[0m"
   npm install &>>${log}
+  echo $?
 
 fun_schema_setup
 
