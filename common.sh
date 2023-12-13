@@ -1,34 +1,42 @@
 log=/tmp/roboshop.log
 
+func_exit_status() {
+  if [ $? -eq 0 ]; then
+    echo -e "\e[32m SUCCESS \e[0m"
+  else
+    echo -e "\e[31m FAILURE \e[0m"
+  fi
+}
+
 fun_apppreq(){
 
     echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
     cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
-echo $?
+func_exit_status
 
     echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
     useradd roboshop &>>${log}
-echo $?
+func_exit_status
 
     echo -e "\e[36m>>>>>>>> Cleanup Existing Application Content <<<<<<<<<<<<<<<\e[0m"
     rm -rf /app &>>${log}
-echo $?
+func_exit_status
 
     echo -e "\e[36m>>>>>>>> Create Application Directory <<<<<<<<<<<<<<<\e[0m"
     mkdir /app &>>${log}
-echo $?
+func_exit_status
 
 
     echo -e "\e[36m>>>>>>>> Download Application Content <<<<<<<<<<<<<<<\e[0m"
     curl -o /tmp/${component}.zip https://roboshop-artifacts.s3.amazonaws.com/${component}.zip &>>${log}
-echo $?
+func_exit_status
 
 
     echo -e "\e[36m>>>>>>>> Extract Application Content<<<<<<<<<<<<<<<\e[0m"
     cd /app &>>${log}
     unzip /tmp/${component}.zip &>>${log}
     cd /app &>>${log}
-    echo $?
+    func_exit_status
 }
 
 fun_systemd(){
@@ -37,7 +45,7 @@ fun_systemd(){
   systemctl daemon-reload &>>${log}
   systemctl enable ${component} &>>${log}
   systemctl restart ${component} &>>${log}
-  echo $?
+ func_exit_status
 }
 
 fun_schema_setup(){
@@ -62,21 +70,25 @@ fun_nodejs() {
 
   echo -e "\e[36m>>>>>>>> Create MongoDB Repo <<<<<<<<<<<<<<<\e[0m"
   cp mongo.repo /etc/yum.repos.d/mongo.repo &>>${log}
-  echo $?
+
+func_exit_status
 
   echo -e "\e[36m>>>>>>>> Download & Install Node Js Repo <<<<<<<<<<<<<<<\e[0m"
   curl -sL https://rpm.nodesource.com/setup_lts.x | bash &>>${log}
-  echo $?
+
+func_exit_status
 
   echo -e "\e[36m>>>>>>>> Install Node JS  <<<<<<<<<<<<<<<\e[0m"
   yum install nodejs -y &>>${log}
-  echo $?
+
+ func_exit_status
 
  fun_apppreq
 
   echo -e "\e[36m>>>>>>>> Download NodeJS Dependencies <<<<<<<<<<<<<<<\e[0m"
   npm install &>>${log}
-  echo $?
+
+func_exit_status
 
 fun_schema_setup
 
