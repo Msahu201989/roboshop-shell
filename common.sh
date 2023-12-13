@@ -93,3 +93,18 @@ fun_python(){
   fun_systemd
 
 }
+
+fun_golang(){
+
+echo -e "\e[36m>>>>>>>> Installing Golang <<<<<<<<<<<<<<<\e[0m"
+dnf install golang -y &>>${log}
+
+fun_apppreq
+
+echo -e "\e[36m>>>>>>>> Builing App Golang <<<<<<<<<<<<<<<\e[0m"
+go mod init dispatch  &>>${log}
+go get &>>${log}
+go build &>>${log}
+
+fun_systemd
+}
