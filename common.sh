@@ -14,7 +14,7 @@ fun_apppreq(){
     cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
 func_exit_status
 
-    echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
+    echo -e "\e[36m>>>>>>>> Create Application USER  ${component} <<<<<<<<<<<<<<<\e[0m"
     useradd roboshop &>>${log}
 func_exit_status
 
