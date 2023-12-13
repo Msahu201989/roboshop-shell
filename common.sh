@@ -1,6 +1,10 @@
 log=/tmp/roboshop.log
 
 fun_apppreq(){
+
+    echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
+    cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
+
     echo -e "\e[36m>>>>>>>> Create Application ${component} <<<<<<<<<<<<<<<\e[0m"
     useradd roboshop &>>${log}
 
@@ -31,10 +35,6 @@ fun_systemd(){
 
 fun_nodejs() {
 
-
-  echo -e "\e[36m>>>>>>>>>>>>  Create ${component} Service  <<<<<<<<<<<<\e[0m"
-  cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
-
   echo -e "\e[36m>>>>>>>> Create MongoDB Repo <<<<<<<<<<<<<<<\e[0m"
   cp mongo.repo /etc/yum.repos.d/mongo.repo &>>${log}
 
@@ -61,13 +61,10 @@ fun_systemd
 
 fun_java(){
 
- echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
-  cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
-
- echo -e "\e[36m>>>>>>>> Install Maven <<<<<<<<<<<<<<<\e[0m"
+  echo -e "\e[36m>>>>>>>> Install Maven <<<<<<<<<<<<<<<\e[0m"
   yum install maven -y &>>${log}
 
-fun_apppreq
+  fun_apppreq
 
   echo -e "\e[36m>>>>>>>> Build ${component} service <<<<<<<<<<<<<<<\e[0m"
   mvn clean package &>>${log}
@@ -79,6 +76,20 @@ fun_apppreq
   echo -e "\e[36m>>>>>>>> Load Schema <<<<<<<<<<<<<<<\e[0m"
   mysql -h mysql.msahu.online -uroot -pRoboShop@1 < /app/schema/${component}.sql &>>${log}
 
-fun_systemd
+  fun_systemd
+
+}
+
+fun_python(){
+
+  echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
+  yum install python36 gcc python3-devel -y &>>${log}
+
+  fun_apppreq
+
+  echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
+  pip3.6 install -r requirements.txt &>>${log}
+
+  fun_systemd
 
 }
