@@ -8,15 +8,18 @@ func_exit_status() {
   fi
 }
 
-fun_apppreq(){
+    fun_apppreq(){
 
     echo -e "\e[36m>>>>>>>> Create ${component} Service <<<<<<<<<<<<<<<\e[0m"
     cp ${component}.service /etc/systemd/system/${component}.service &>>${log}
-func_exit_status
+    func_exit_status
 
     echo -e "\e[36m>>>>>>>> Create Application USER  ${component} <<<<<<<<<<<<<<<\e[0m"
+    id roboshop &>>${log}
+    if [ $? -ne 0 ]; then
     useradd roboshop &>>${log}
-func_exit_status
+    fi
+    func_exit_status
 
     echo -e "\e[36m>>>>>>>> Cleanup Existing Application Content <<<<<<<<<<<<<<<\e[0m"
     rm -rf /app &>>${log}
